@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{# Remove the entire {% block extra_css %}...{% endblock %} from here #}
+
+{% block content %}
+<link rel="stylesheet" href="./styles.css">
+<div class="card">
+    <div class="hero">
+        <h1>Signal Waveform Visualizer</h1>
+        <p>
+            Explore and visualize different electrical waveforms with interactive controls.
+            Perfect for students, engineers, and anyone curious about signal processing.
+        </p>
+    </div>
+
+    <div class="waveform-grid">
+        <div class="waveform-card">
+            <span class="waveform-icon">〰️</span>
+            <h3>Sine Wave</h3>
+            <p>Classic sinusoidal waveform - the foundation of AC signals and harmonic analysis.</p>
+            <a href="./waveform.html" class="btn">Visualize Sine</a>
+        </div>
+
+        <div class="waveform-card">
+            <span class="waveform-icon">⬜</span>
+            <h3>Square Wave</h3>
+            <p>Digital-like waveform with sharp transitions - common in digital circuits and PWM.</p>
+            <a href="./waveform.html" class="btn btn-secondary">Visualize Square</a>
+        </div>
+
+        <div class="waveform-card">
+            <span class="waveform-icon">🔺</span>
+            <h3>Triangle Wave</h3>
+            <p>Linear ramp waveform - used in oscillators and signal generation applications.</p>
+            <a href="./waveform.html" class="btn">Visualize Triangle</a>
+        </div>
+
+        <div class="waveform-card">
+            <span class="waveform-icon">📈</span>
+            <h3>Sawtooth Wave</h3>
+            <p>Ramp signal with sharp reset - common in timing circuits and audio synthesis.</p>
+            <a href="./waveform.html" class="btn btn-secondary">Visualize Sawtooth</a>
+        </div>
+    </div>
+</div>
+
+<div class="card features">
+    <h2>Features</h2>
+    <div class="feature-grid">
+        <div class="feature-item">
+            <span class="icon">🎛️</span>
+            <h4>Interactive Controls</h4>
+            <p>Adjust frequency, amplitude, and phase in real-time to see immediate changes.</p>
+        </div>
+        <div class="feature-item">
+            <span class="icon">📊</span>
+            <h4>Real-time Visualization</h4>
+            <p>High-quality charts that update instantly as you modify parameters.</p>
+        </div>
+        <div class="feature-item">
+            <span class="icon">💾</span>
+            <h4>Data Export</h4>
+            <p>Export your waveform data as CSV files for further analysis or documentation.</p>
+        </div>
+        <div class="feature-item">
+            <span class="icon">📱</span>
+            <h4>Responsive Design</h4>
+            <p>Works perfectly on desktop, tablet, and mobile devices.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

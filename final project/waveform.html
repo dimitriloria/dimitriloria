@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{# Remove the entire {% block extra_css %}...{% endblock %} from here #}
+
+{% block content %}
+<link rel="stylesheet" href="./styles.css">
+<div class="visualizer-container">
+    <div class="controls-panel">
+        <h3>Waveform Controls</h3>
+
+        <div class="control-group">
+            <label>Waveform Type</label>
+            <div class="waveform-type-selector">
+                <button class="type-btn" data-type="sine">Sine</button>
+                <button class="type-btn" data-type="square">Square</button>
+                <button class="type-btn" data-type="triangle">Triangle</button>
+                <button class="type-btn" data-type="sawtooth">Sawtooth</button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="frequency">Frequency (Hz)</label>
+            <input type="range" id="frequency" min="0.1" max="10" step="0.1" value="1">
+            <div class="value-display" id="frequencyValue">1.0 Hz</div>
+        </div>
+
+        <div class="control-group">
+            <label for="amplitude">Amplitude (V)</label>
+            <input type="range" id="amplitude" min="0.1" max="5" step="0.1" value="1">
+            <div class="value-display" id="amplitudeValue">1.0 V</div>
+        </div>
+
+        <div class="control-group">
+            <label for="phase">Phase (degrees)</label>
+            <input type="range" id="phase" min="0" max="360" step="10" value="0">
+            <div class="value-display" id="phaseValue">0°</div>
+        </div>
+
+        <div class="stats-panel">
+            <h4>Waveform Statistics</h4>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Period</span>
+                    <div class="stat-value" id="periodValue">1.00 s</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Peak-to-Peak</span>
+                    <div class="stat-value" id="peakToPeakValue">2.00 V</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">RMS</span>
+                    <div class="stat-value" id="rmsValue">0.71 V</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Samples</span>
+                    <div class="stat-value" id="samplesValue">1000</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <button class="btn" id="exportBtn" style="width: 100%;">📄 Export as CSV</button>
+        </div>
+    </div>
+
+    <div class="chart-panel">
+        <h3 id="chartTitle">Sine Wave Visualization</h3>
+        <canvas id="waveformChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    class WaveformVisualizer {
+        constructor() {
+            this.canvas = document.getElementById('waveformChart');
+            this.ctx = this.canvas.getContext('2d');
+            // Get waveform type from URL query parameter, default to 'sine'
+            const urlParams = new URLSearchParams(window.location.search);
+            this.currentWaveform = urlParams.get('type') || 'sine';
+            this.currentData = null;
+
+            this.setupCanvas();
+            this.setupControls();
+            this.updateWaveform(); // Initial waveform generation
+        }
+
+        setupCanvas() {
+            // Set canvas size
+            this.canvas.width = this.canvas.offsetWidth * 2;
+            this.canvas.height = this.canvas.offsetHeight * 2;
+            this.ctx.scale(2, 2);
+        }
+
+        setupControls() {
+            // Waveform type buttons
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                if (btn.dataset.type === this.currentWaveform) {
+                    btn.classList.add('active');
+                }
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    this.currentWaveform = btn.dataset.type;
+                    this.updateWaveform();
+                });
+            });
+
+            // Range inputs
+            ['frequency', 'amplitude', 'phase'].forEach(param => {
+                const input = document.getElementById(param);
+                const display = document.getElementById(param + 'Value');
+
+                // Set initial value display based on the input's current value
+                let initialValue = parseFloat(input.value);
+                let unit = param === 'frequency' ? ' Hz' : param === 'amplitude' ? ' V' : '°';
+                display.textContent = initialValue.toFixed(1) + unit;
+
+                input.addEventListener('input', () => {
+                    let value = parseFloat(input.value);
+                    display.textContent = value.toFixed(1) + unit;
+                    this.updateWaveform();
+                });
+            });
+
+            // Export button
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                this.exportCSV();
+            });
+        }
+
+        async updateWaveform() {
+            const frequency = parseFloat(document.getElementById('frequency').value);
+            const amplitude = parseFloat(document.getElementById('amplitude').value);
+            const phase = parseFloat(document.getElementById('phase').value) * Math.PI / 180; // Convert to radians
+
+            try {
+                const response = await fetch('/api/generate_waveform', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: this.currentWaveform,
+                        frequency: frequency,
+                        amplitude: amplitude,
+                        phase: phase,
+                        samples: 1000
+                    })
+                });
+
+                this.currentData = await response.json();
+                this.drawWaveform();
+                this.updateStats();
+                this.updateTitle();
+
+            } catch (error) {
+                console.error('Error generating waveform:', error);
+            }
+        }
+
+        drawWaveform() {
+            if (!this.currentData) return;
+
+            const { time, amplitude } = this.currentData;
+            const width = this.canvas.width / 2;
+            const height = this.canvas.height / 2;
+
+            // Clear canvas
+            this.ctx.clearRect(0, 0, width, height);
+
+            // Draw grid
+            this.drawGrid(width, height);
+
+            // Draw waveform
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = '#667eea';
+            this.ctx.lineWidth = 3;
+
+            const maxTime = Math.max(...time);
+            const maxAmp = Math.max(...amplitude.map(Math.abs));
+            const effectiveMaxAmp = maxAmp === 0 ? 1 : maxAmp;
+
+            for (let i = 0; i < time.length; i++) {
+                const x = (time[i] / maxTime) * (width - 60) + 30;
+                const y = height / 2 - (amplitude[i] / effectiveMaxAmp) * (height - 60) / 2;
+
+                if (i === 0) {
+                    this.ctx.moveTo(x, y);
+                } else {
+                    this.ctx.lineTo(x, y);
+                }
+            }
+
+            this.ctx.stroke();
+
+            // Draw axes labels
+            this.drawAxesLabels(width, height, maxTime, effectiveMaxAmp);
+        }
+
+        drawGrid(width, height) {
+            this.ctx.strokeStyle = '#e1e5e9';
+            this.ctx.lineWidth = 1;
+
+            // Vertical grid lines
+            for (let i = 0; i <= 10; i++) {
+                const x = 30 + (i / 10) * (width - 60);
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, 30);
+                this.ctx.lineTo(x, height - 30);
+                this.ctx.stroke();
+            }
+
+            // Horizontal grid lines
+            for (let i = 0; i <= 8; i++) {
+                const y = 30 + (i / 8) * (height - 60);
+                this.ctx.beginPath();
+                this.ctx.moveTo(30, y);
+                this.ctx.lineTo(width - 30, y);
+                this.ctx.stroke();
+            }
+
+            // Axes
+            this.ctx.strokeStyle = '#333';
+            this.ctx.lineWidth = 2;
+
+            // X-axis
+            this.ctx.beginPath();
+            this.ctx.moveTo(30, height / 2);
+            this.ctx.lineTo(width - 30, height / 2);
+            this.ctx.stroke();
+
+            // Y-axis
+            this.ctx.beginPath();
+            this.ctx.moveTo(30, 30);
+            this.ctx.lineTo(30, height - 30);
+            this.ctx.stroke();
+        }
+
+        drawAxesLabels(width, height, maxTime, maxAmp) {
+            this.ctx.fillStyle = '#666';
+            this.ctx.font = '12px sans-serif';
+
+            // X-axis label
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('Time (s)', width / 2, height - 5);
+
+            // Y-axis label
+            this.ctx.save();
+            this.ctx.translate(15, height / 2);
+            this.ctx.rotate(-Math.PI / 2);
+            this.ctx.fillText('Amplitude (V)', 0, 0);
+            this.ctx.restore();
+
+            // X-axis scale markers
+            this.ctx.textAlign = 'center';
+            for (let i = 0; i <= 4; i++) {
+                const x = 30 + (i / 4) * (width - 60);
+                const timeValue = (i / 4) * maxTime;
+                this.ctx.fillText(timeValue.toFixed(2), x, height - 15);
+            }
+
+            // Y-axis scale markers
+            this.ctx.textAlign = 'right';
+            for (let i = 0; i <= 4; i++) {
+                const y = 30 + (i / 4) * (height - 60);
+                const ampValue = maxAmp - (i / 2) * maxAmp;
+                this.ctx.fillText(ampValue.toFixed(1), 25, y + 3);
+            }
+        }
+
+        updateStats() {
+            if (!this.currentData) return;
+
+            const frequency = this.currentData.frequency;
+            const amplitude = this.currentData.amplitude_value;
+
+            let rms;
+            switch (this.currentWaveform) {
+                case 'sine':
+                    rms = amplitude / Math.sqrt(2);
+                    break;
+                case 'square':
+                    rms = amplitude;
+                    break;
+                case 'triangle':
+                    rms = amplitude / Math.sqrt(3);
+                    break;
+                case 'sawtooth':
+                    rms = amplitude / Math.sqrt(3);
+                    break;
+                default:
+                    rms = 0;
+            }
+
+            document.getElementById('periodValue').textContent = (1/frequency).toFixed(2) + ' s';
+            document.getElementById('peakToPeakValue').textContent = (2 * amplitude).toFixed(2) + ' V';
+            document.getElementById('rmsValue').textContent = rms.toFixed(2) + ' V';
+            document.getElementById('samplesValue').textContent = this.currentData.time.length.toString();
+        }
+
+        updateTitle() {
+            const typeNames = {
+                'sine': 'Sine Wave',
+                'square': 'Square Wave',
+                'triangle': 'Triangle Wave',
+                'sawtooth': 'Sawtooth Wave'
+            };
+            document.getElementById('chartTitle').textContent = typeNames[this.currentWaveform] + ' Visualization';
+        }
+
+        async exportCSV() {
+            if (!this.currentData) return;
+
+            try {
+                const response = await fetch('/api/export_csv', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        time: this.currentData.time,
+                        amplitude: this.currentData.amplitude
+                    })
+                });
+
+                const result = await response.json();
+
+                const blob = new Blob([result.csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${this.currentWaveform}_waveform_${Date.now()}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+            } catch (error) {
+                console.error('Error exporting CSV:', error);
+                alert('Error exporting CSV file');
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        new WaveformVisualizer();
+    });
+</script>
+{% endblock %}
