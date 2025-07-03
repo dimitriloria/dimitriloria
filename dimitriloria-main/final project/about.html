@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="./base.html" class="logo">⚡ WaveViz</a>
+                <ul class="nav-links">
+                    <li><a href="./index.html">Home</a></li>
+                    <li><a href="./waveform.html">Visualizer</a></li>
+                    <li><a href="./about.html">About</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <article class="card about-container">
+        <section class="about-header">
+            <h1>About WaveViz</h1>
+            <p>Your interactive companion for understanding electrical waveforms</p>
+        </section>
+
+        <section class="about-section">
+            <h2>What is WaveViz?</h2>
+            <p>
+                WaveViz is an interactive web application designed to help students, engineers, and electronics
+                enthusiasts
+                visualize and understand different types of electrical waveforms. Whether you're studying signal
+                processing,
+                working on circuit design, or just curious about how different waveforms behave, WaveViz provides an
+                intuitive platform to explore these fundamental building blocks of electrical engineering.
+            </p>
+            <p>
+                Our tool allows you to manipulate key parameters like frequency, amplitude, and phase in real-time,
+                giving you immediate visual feedback on how these changes affect the waveform shape and characteristics.
+            </p>
+        </section>
+
+        <section class="about-section">
+            <h2>Key Features</h2>
+            <div class="feature-list">
+                <div class="feature-card">
+                    <h4>🎛️ Real-time Controls</h4>
+                    <p>Adjust frequency, amplitude, and phase with interactive sliders and see changes instantly.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 High-Quality Visualization</h4>
+                    <p>Clean, professional charts with grid lines and proper scaling for accurate analysis.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📈 Multiple Waveforms</h4>
+                    <p>Support for sine, square, triangle, and sawtooth waveforms - the most common signal types.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Statistical Analysis</h4>
+                    <p>Automatic calculation of key parameters like RMS, peak-to-peak, and period values.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💾 Data Export</h4>
+                    <p>Export your waveform data as CSV files for further analysis or documentation.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📱 Responsive Design</h4>
+                    <p>Works seamlessly on desktop, tablet, and mobile devices with adaptive layouts.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <h2>Supported Waveforms</h2>
+            <div class="waveform-info">
+                <div class="waveform-card">
+                    <span class="icon">〰️</span>
+                    <h4>Sine Wave</h4>
+                    <p>The fundamental AC waveform. Pure sinusoidal signals form the basis of harmonic analysis and are
+                        found throughout electrical systems.</p>
+                </div>
+                <div class="waveform-card">
+                    <span class="icon">⬜</span>
+                    <h4>Square Wave</h4>
+                    <p>Digital-like signals with sharp transitions. Common in digital circuits, PWM control, and clock
+                        signals.</p>
+                </div>
+                <div class="waveform-card">
+                    <span class="icon">🔺</span>
+                    <h4>Triangle Wave</h4>
+                    <p>Linear ramp signals used in oscillators, timing circuits, and audio applications. Features
+                        constant rate of change.</p>
+                </div>
+                <div class="waveform-card">
+                    <span class="icon">📈</span>
+                    <h4>Sawtooth Wave</h4>
+                    <p>Ramp signals with sharp resets. Popular in audio synthesis, sweep generators, and timing
+                        applications.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="tech-stack">
+            <h3>Technology Stack</h3>
+            <p>WaveViz is built using modern web technologies to ensure reliability, performance, and ease of use:</p>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <span class="icon">🐍</span>
+                    <strong>Python Flask</strong>
+                    <p>Backend API and server</p>
+                </div>
+                <div class="tech-item">
+                    <span class="icon">🔢</span>
+                    <strong>NumPy</strong>
+                    <p>Mathematical computations</p>
+                </div>
+                <div class="tech-item">
+                    <span class="icon">🎨</span>
+                    <strong>HTML5 Canvas</strong>
+                    <p>High-performance visualization</p>
+                </div>
+                <div class="tech-item">
+                    <span class="icon">⚡</span>
+                    <strong>JavaScript ES6+</strong>
+                    <p>Interactive frontend logic</p>
+                </div>
+                <div class="tech-item">
+                    <span class="icon">🎭</span>
+                    <strong>CSS3</strong>
+                    <p>Modern responsive styling</p>
+                </div>
+                <div class="tech-item">
+                    <span class="icon">🚀</span>
+                    <strong>REST API</strong>
+                    <p>Clean data communication</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section">
+            <h2>Educational Applications</h2>
+            <p>
+                WaveViz is perfect for educational environments and self-learning. It can be used to:
+            </p>
+            <ul style="line-height: 1.7; color: #555; margin-left: 2rem;">
+                <li>Understand the relationship between frequency and period</li>
+                <li>Visualize how amplitude affects signal strength</li>
+                <li>Learn about phase relationships in AC circuits</li>
+                <li>Compare different waveform types and their applications</li>
+                <li>Generate data for homework assignments and projects</li>
+                <li>Support laboratory exercises in electrical engineering courses</li>
+            </ul>
+        </section>
+
+        <section class="cta-section">
+            <h3>Ready to Explore?</h3>
+            <p>Start visualizing waveforms and discover the fascinating world of signal processing!</p>
+            <a href="./waveform.html" class="btn">Start Visualizing</a>
+        </section>
+    </article>
+
+</body>
+
+</html>
